@@ -5,6 +5,14 @@ XKCD_ENDPOINT = "https://xkcd.com/{}/info.0.json"
 
 POOLING_INTERVAL = 60*60
 
+
+def get_http(url):
+    print("GET {}".format(url))
+    http = urllib3.PoolManager()
+    response = http.request("GET", url)
+    return response
+
+
 def read_start():
     with open("start.txt", "r") as f:
         return int(f.read().strip())
@@ -16,8 +24,7 @@ def save_start(start):
 
 def get_xkcd_data(num):
     url = XKCD_ENDPOINT.format(num)
-    http = urllib3.PoolManager()
-    response = http.request("GET", url)
+    response = get_http(url)
     if response.status != 200:
         print("Failed to fetch data from {}".format(url))
         return None
@@ -25,16 +32,15 @@ def get_xkcd_data(num):
     return json.loads(response.data.decode("utf-8"))
 
 def get_friend_list():
-    http = urllib3.PoolManager()
-    response = http.request("GET", COOLQ_ENDPOINT.format("get_friend_list"))
+    response = get_http(COOLQ_ENDPOINT.format('get_friend_list'))
     if response.status != 200:
         print("Failed to fetch friend list")
         return None
     return json.loads(response.data.decode("utf-8"))
 
+
 def do_send(user_id, image):
-    http = urllib3.PoolManager()
-    response = http.request("GET", COOLQ_ENDPOINT.format(
+    response = get_http(COOLQ_ENDPOINT.format(
         "send_private_msg?user_id={},message={}[CQ:image,file={}]".format(
             user_id, image, image
             )
@@ -49,10 +55,10 @@ def action():
     comic_data = get_xkcd_data(curr)
     if comic_data is None:
         return
-    save_start(curr + 1)
     print("Sending data to CoolQ")
     for friend in get_friend_list()["data"]:
         do_send(friend["user_id"], comic_data["img"])
+    save_start(curr + 1)
     
 
 if __name__ == "__main__":
