@@ -39,10 +39,10 @@ def get_friend_list():
     return json.loads(response.data.decode("utf-8"))
 
 
-def do_send(user_id, image):
+def do_send(user_id, comic):
     response = get_http(COOLQ_ENDPOINT.format(
-        "send_private_msg?user_id={},message={}[CQ:image,file={}]".format(
-            user_id, image, image
+        "send_private_msg?user_id={}&message={}[CQ:image,file={}]".format(
+            user_id, comic["safe_title"], comic["img"]
             )
     ))
     if response.status != 200:
@@ -57,7 +57,7 @@ def action():
         return
     print("Sending data to CoolQ")
     for friend in get_friend_list()["data"]:
-        do_send(friend["user_id"], comic_data["img"])
+        do_send(friend["user_id"], comic_data)
     save_start(curr + 1)
     
 
