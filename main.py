@@ -1,6 +1,6 @@
 import urllib3, json, logging, time
 
-COOLQ_ENDPOINT = "https://localhost:5700/{}"
+COOLQ_ENDPOINT = "http://localhost:5700/{}"
 XKCD_ENDPOINT = "https://xkcd.com/{}/info.0.json"
 
 POOLING_INTERVAL = 60*60
